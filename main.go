@@ -13,11 +13,6 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-var (
-	RegistryAddr string
-	Credential   types.Credential
-)
-
 // load config file (if exist)
 func appBefore(c *cli.Context) error {
 	// set log-level
@@ -25,14 +20,18 @@ func appBefore(c *cli.Context) error {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
+	// make Credential
+	registryAddr := ""
+	credential := types.Credential{}
+
 	dc, err := utils.ParseDockerCondig()
 	if err != nil {
 		return err
 	}
 
 	for addr, auth := range dc.Auths {
-		RegistryAddr = addr
-		Credential, err = utils.ParseAuth(auth.Auth)
+		registryAddr = addr
+		credential, err = utils.ParseAuth(auth.Auth)
 		if err != nil {
 			return err
 		}
@@ -40,13 +39,23 @@ func appBefore(c *cli.Context) error {
 		break
 	}
 
-	logrus.Debugf("Registry: [%s], Auth: [%s:%s]",
-		RegistryAddr, Credential.UserName, Credential.PassWord)
+	// last, we use the config you give in cli
+	if c.String("registry") != "" {
+		registryAddr = c.String("registry")
+		credential = types.Credential{
+			UserName: c.String("username"),
+			PassWord: c.String("password"),
+		}
+	}
 
-	// no registry provided
-	if RegistryAddr == "" {
+	logrus.Debugf("Registry: [%s], Auth: [%s:%s]", registryAddr,
+		credential.UserName, credential.PassWord)
+
+	// check registry
+	if registryAddr == "" {
 		return fmt.Errorf("Error! No Registry Provided")
 	}
+	cmds.SetRegistry(registryAddr, credential)
 
 	return nil
 }
@@ -54,15 +63,27 @@ func appBefore(c *cli.Context) error {
 func main() {
 	app := &cli.App{
 		Name:                  "reg",
-		Description:           "docker registry cli",
+		Usage:                 "docker registry.v2 cli",
 		Before:                appBefore,
 		EnableShellCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:        "registry",
-				Aliases:     []string{"r"},
-				Usage:       "docker registry address",
-				Destination: &RegistryAddr,
+				Name:    "registry",
+				Aliases: []string{"r"},
+				EnvVars: []string{"REG_REGISTRY"},
+				Usage:   "docker registry address",
+			},
+			&cli.StringFlag{
+				Name:    "user",
+				Aliases: []string{"u"},
+				EnvVars: []string{"REG_USER"},
+				Usage:   "docker registry username",
+			},
+			&cli.StringFlag{
+				Name:    "pass",
+				Aliases: []string{"p"},
+				EnvVars: []string{"REG_PASS"},
+				Usage:   "docker registry password",
 			},
 			&cli.BoolFlag{
 				Name:    "debug",

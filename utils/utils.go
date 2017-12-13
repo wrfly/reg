@@ -11,6 +11,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wrfly/reg/types"
+	"gopkg.in/urfave/cli.v2"
 )
 
 func ParseDockerCondig() (types.DockerConfig, error) {
@@ -53,4 +54,29 @@ func ParseAuth(auth string) (types.Credential, error) {
 	c.PassWord = uAp[1]
 
 	return c, nil
+}
+
+func CmdBefore(c *cli.Context) error {
+	// set log-level
+	if c.Bool("debug") {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	return nil
+}
+
+// a="1",b="2" -> map["a":"1","b":"2"]
+func String2Map(str string) map[string]string {
+	pairs := strings.Split(str, ",")
+	maps := make(map[string]string, 0)
+	for _, pair := range pairs {
+		p := strings.Split(pair, "=")
+		if len(p) != 2 {
+			continue
+		}
+		k := p[0]
+		v := strings.Replace(p[1], "\"", "", -1)
+		maps[k] = v
+	}
+
+	return maps
 }
