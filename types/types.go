@@ -19,3 +19,12 @@ type DockerConfig struct {
 		Auth string `json:"auth"`
 	} `json:"auths"`
 }
+
+type TagsFilter struct {
+	Name string
+}
+
+type LsFilter struct {
+	Name string
+	Tags TagsFilter
+}
