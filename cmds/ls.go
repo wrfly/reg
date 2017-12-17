@@ -12,9 +12,8 @@ import (
 )
 
 var LsRepo = &cli.Command{
-	Name:    "list",
-	Usage:   "list repos",
-	Aliases: []string{"ls"},
+	Name:  "ls",
+	Usage: "list repos",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "filter",

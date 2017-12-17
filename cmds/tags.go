@@ -11,9 +11,8 @@ import (
 )
 
 var LsTags = &cli.Command{
-	Name:    "tags",
-	Usage:   "list repo tags",
-	Aliases: []string{"t"},
+	Name:  "tags",
+	Usage: "list repo tags",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "filter",

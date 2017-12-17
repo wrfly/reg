@@ -11,17 +11,22 @@ import (
 	"github.com/wrfly/reg/utils"
 )
 
-func (r *Registry) getJson(URI string) (*http.Response, error) {
+func (r *Registry) getJson(what string) (*http.Response, error) {
+	// get method and uri from `what`
+	method := strings.Split(what, " ")[0]
+	URI := strings.Split(what, " ")[1]
 	// use https first
 	URL := fmt.Sprintf("https://%s%s", r.RegistryAddr, URI)
 	c := http.Client{
 		Timeout: time.Second * 5,
 	}
-	logrus.Debugf("get %s", URL)
+	logrus.Debugf("%s %s", method, URL)
 
 	// http stuff
-	req, _ := http.NewRequest("GET", URL, nil)
+	req, _ := http.NewRequest(method, URL, nil)
 	req.Header.Set("Docker-Distribution-API-Version", "registry/2.0")
+	// need this header to delete image
+	req.Header.Set("Accept", "application/vnd.docker.distribution.manifest.v2+json")
 
 	resp, err := c.Do(req)
 	if err != nil {
