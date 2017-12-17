@@ -94,6 +94,7 @@ func main() {
 		// commands
 		Commands: []*cli.Command{
 			cmds.LsRepo,
+			cmds.LsTags,
 		},
 		CommandNotFound: func(c *cli.Context, command string) {
 			logrus.Errorf("No matching command '%s'", command)

@@ -1,13 +1,15 @@
 package cmds
 
-import "github.com/wrfly/reg/types"
-
-var (
-	registryAddr string
-	credential   types.Credential
+import (
+	"github.com/wrfly/reg/registry"
+	"github.com/wrfly/reg/types"
 )
 
-func SetRegistry(addr string, cre types.Credential) {
-	registryAddr = addr
-	credential = cre
+var r registry.Registry
+
+func SetRegistry(registryAddr string, credential types.Credential) {
+	r = registry.Registry{
+		RegistryAddr: registryAddr,
+		Credential:   credential,
+	}
 }

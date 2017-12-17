@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/wrfly/reg/registry"
 	"github.com/wrfly/reg/types"
 
 	"github.com/sirupsen/logrus"
@@ -38,11 +37,6 @@ var LsRepo = &cli.Command{
 		num := c.Int("num")
 		last := ""
 		showTags := c.Bool("tags")
-
-		r := registry.Registry{
-			RegistryAddr: registryAddr,
-			Credential:   credential,
-		}
 
 		repos, err := r.ListRepos(num, last)
 		if err != nil {

@@ -56,6 +56,9 @@ func (r *Registry) ListTags(repo string, filter types.TagsFilter) ([]string, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, fmt.Errorf("Repo not found")
+		}
 		return nil, fmt.Errorf("Server Error: %s", bs)
 	}
 
