@@ -80,3 +80,10 @@ func String2Map(str string) map[string]string {
 
 	return maps
 }
+
+func Base64Encode(in string) string {
+	n := base64.StdEncoding.EncodedLen(len([]byte(in)))
+	dst := make([]byte, n)
+	base64.StdEncoding.Encode(dst, []byte(in))
+	return fmt.Sprintf("%s", dst)
+}

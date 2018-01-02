@@ -55,22 +55,40 @@ func (r *Registry) getJson(what string) (*http.Response, error) {
 		if err != nil {
 			return resp, err
 		}
+		logrus.Debugf("scheme: %s, token: %s", scheme, token)
 		req.Header.Set("Authorization", fmt.Sprintf("%s %s", scheme, token))
-		return resp, fmt.Errorf("authentication failed")
+		resp, err = c.Do(req)
+		if err != nil {
+			return resp, err
+		}
+		if resp.StatusCode == http.StatusUnauthorized {
+			return resp, fmt.Errorf("authentication failed")
+		}
 	}
 	return resp, err
 }
 
 func getToken(authStr string, credential types.Credential) (string, error) {
 	m := utils.String2Map(authStr)
+
 	logrus.Debugf("realm: %v", m["realm"])
+	// htpasswd auth
+	if m["realm"] == "Registry" {
+		s := fmt.Sprintf("%s:%s", credential.UserName, credential.PassWord)
+		return utils.Base64Encode(s), nil
+	}
 
 	req, _ := http.NewRequest("GET", m["realm"], nil)
 	q := req.URL.Query()
-	q.Set("service", m["service"])
-	q.Set("scope", m["scope"])
+	if m["service"] != "" {
+		q.Set("service", m["service"])
+	}
+	if m["scope"] != "" {
+		q.Set("scope", m["scope"])
+	}
+
 	req.URL.RawQuery = q.Encode()
-	logrus.Debug(req.URL.String())
+	logrus.Debugf("get token url: %s", req.URL.String())
 
 	req.SetBasicAuth(credential.UserName, credential.PassWord)
 

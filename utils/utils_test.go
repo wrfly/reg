@@ -10,3 +10,8 @@ func TestString2Map(t *testing.T) {
 		fmt.Printf("%s=%s\n", k, v)
 	}
 }
+
+func TestBase64Encode(t *testing.T) {
+	o := Base64Encode("123")
+	fmt.Println(o)
+}
